@@ -159,8 +159,6 @@ public static class WeatherForecastEndpoints
 ### Routing and Groups
 
 ```csharp
-app.MapGet("/", (HttpResponse httpResponse) => "Hello World!");
-
 app.MapWeatherForecastEndpoints();
 
 public static class WeatherForecastEndpoints
