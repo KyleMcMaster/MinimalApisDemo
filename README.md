@@ -130,26 +130,15 @@ public class WeatherService
 
 ### GetById
 ```csharp
-app.MapGet("/forecasts/{id:int}", WeatherForecastEndpoints.GetWeatherForecastById);
+app.MapGet("/forecasts/{id}", (int id, WeatherService weatherService) =>
+    WeatherForecastEndpoints.GetById(id, weatherService))
+    .WithTags("WeatherForecasts");
+    
 public static class WeatherForecastEndpoints
 {
     public static Func<WeatherService, int, Microsoft.AspNetCore.Http.IResult> GetWeatherForecastById = (weatherService, id) =>
-    {
-        var result = weatherService.GetById(id);
-
-        if (result.IsSuccess)
-        {
-            return TypedResults.Ok(result.Value);
-        }
-        else if (result.Status == ResultStatus.NotFound)
-        {
-            return TypedResults.NotFound();
-        }
-        else
-        {
-            return TypedResults.Problem("Some issue occurred.");
-        }
-    };
+        weatherService.GetById(id)
+        .ToMinimalApiResult();
 }
 
 public Result<WeatherForecast> GetById(int id)

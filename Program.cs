@@ -18,12 +18,17 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/", (HttpResponse httpResponse) => httpResponse.Redirect("/swagger"));
 
-app.MapGet("/forecasts", (WeatherService weatherService) => weatherService.List().ToMinimalApiResult());
-//.WithTags("WeatherForecasts");
+app.MapGet("/forecasts", (WeatherService weatherService) => weatherService.List().ToMinimalApiResult())
+    .WithTags("WeatherForecasts");
 
-app.MapPost("/forecasts", (WeatherForecastDTO request, WeatherService weatherService) => 
+app.MapGet("/forecasts/{id}", (int id, WeatherService weatherService) =>
+    WeatherForecastEndpoints.GetById(id, weatherService))
+    .WithTags("WeatherForecasts");
+
+app.MapPost("/forecasts", (WeatherForecastDTO request, WeatherService weatherService) =>
     weatherService.Create(request.Date, request.TemperatureC, request.Summary)
-    .ToMinimalApiResult());
+    .ToMinimalApiResult())
+    .WithTags("WeatherForecasts");
 
 app.Run();
 
@@ -48,7 +53,7 @@ public class WeatherService
     private static List<WeatherForecast> _forecasts = new()
     {
         new() { Id = 0, Date = DateTime.Now, TemperatureC = 12, Summary = "Cool" },
-        new() { Id = 1, Date = DateTime.Now.AddDays(1), TemperatureC = 21, Summary = "Warm" },
+        new() { Id = 1, Date = DateTime.Now.AddDays(1), TemperatureC = 22, Summary = "Warm" },
         new() { Id = 2, Date = DateTime.Now.AddDays(2), TemperatureC = 19, Summary = "Warm" },
         new() { Id = 3, Date = DateTime.Now.AddDays(3), TemperatureC = 32, Summary = "Hot" },
     };
@@ -72,7 +77,7 @@ public class WeatherService
             };
             return Result.Invalid(validationErrors);
         }
-        
+
         var forecast = new WeatherForecast
         {
             Id = _forecasts.Max(f => f.Id) + 1,
@@ -83,12 +88,33 @@ public class WeatherService
 
         _forecasts.Add(forecast);
 
-        return forecast; // Result.Success
+        return Result.Success(forecast);
     }
 
     public Result<IEnumerable<WeatherForecast>> List()
     {
         return _forecasts; // Always Successful
     }
+
+
+    public Result<WeatherForecast> GetById(int id)
+    {
+        var forecast = _forecasts.SingleOrDefault(f => f.Id == id);
+
+        if (forecast is null)
+        {
+            return Result.NotFound();
+        }
+
+        return forecast;
+    }
 }
 
+
+public static class WeatherForecastEndpoints
+{
+    public static Func<int, WeatherService, Microsoft.AspNetCore.Http.IResult> GetById = 
+        (int id, WeatherService weatherService) =>
+        weatherService.GetById(id)
+        .ToMinimalApiResult();
+}
