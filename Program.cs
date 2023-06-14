@@ -1,5 +1,6 @@
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
+using MinimalApis.Extensions.Results;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,19 +17,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapGet("/", (HttpResponse httpResponse) => httpResponse.Redirect("/swagger"));
+app.MapGet("/", WeatherForecastViews.Index);
 
-app.MapGet("/forecasts", (WeatherService weatherService) => weatherService.List().ToMinimalApiResult())
-    .WithTags("WeatherForecasts");
-
-app.MapGet("/forecasts/{id}", (int id, WeatherService weatherService) =>
-    WeatherForecastEndpoints.GetById(id, weatherService))
-    .WithTags("WeatherForecasts");
-
-app.MapPost("/forecasts", (WeatherForecastDTO request, WeatherService weatherService) =>
-    weatherService.Create(request.Date, request.TemperatureC, request.Summary)
-    .ToMinimalApiResult())
-    .WithTags("WeatherForecasts");
+app.MapWeatherForecastEndpoints();
 
 app.Run();
 
@@ -110,11 +101,46 @@ public class WeatherService
     }
 }
 
-
 public static class WeatherForecastEndpoints
 {
-    public static Func<int, WeatherService, Microsoft.AspNetCore.Http.IResult> GetById = 
+    private static Func<int, WeatherService, Microsoft.AspNetCore.Http.IResult> GetById = 
         (int id, WeatherService weatherService) =>
         weatherService.GetById(id)
         .ToMinimalApiResult();
+
+    public static WebApplication MapWeatherForecastEndpoints(this WebApplication app)
+    {
+        var group = app.MapGroup("forecasts")
+            .WithTags("WeatherForecasts");
+
+        group.MapGet("", (WeatherService weatherService) => weatherService.List().ToMinimalApiResult());
+            
+        group.MapGet("/{id}", (int id, WeatherService weatherService) => GetById(id, weatherService));
+
+        group.MapPost("", (WeatherForecastDTO request, WeatherService weatherService) =>
+            weatherService.Create(request.Date, request.TemperatureC, request.Summary)
+            .ToMinimalApiResult());
+
+        return app;
+    }
+}
+
+public static class WeatherForecastViews
+{
+    public static Func<WeatherService, Microsoft.AspNetCore.Http.IResult> Index = (WeatherService weatherService) =>
+    {
+        var forecast = weatherService.List().Value.First();
+        return Results.Extensions.Html(
+            $"""
+                <!doctype html>
+                <html>
+                <head><title>{forecast.Date.ToShortDateString()}'s Forecast</title></head>
+                <body>
+                    <h1>Today is going to be {forecast.Summary}</h1>
+                    <p>The temperature Celsius is {forecast.TemperatureC}</p>
+                    <p>The temperature Fahrenheit is {forecast.TemperatureF}</p>
+                </body>
+                </html>
+            """);
+    };
 }

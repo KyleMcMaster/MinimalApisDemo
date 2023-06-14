@@ -187,6 +187,15 @@ public static class WeatherForecastEndpoints
         return app;
     }
 }
+```
+
+### Other content types
+
+```powershell
+dotnet add package MinimalApis.Extensions
+```
+
+```csharp
 
 ```
 
