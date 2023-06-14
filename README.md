@@ -154,6 +154,44 @@ public static class WeatherForecastEndpoints
 }
 ```
 
+## Other tips, hacks, and experiments
+
+### Routing and Groups
+
+```csharp
+app.MapGet("/", (HttpResponse httpResponse) => "Hello World!");
+
+app.MapWeatherForecastEndpoints();
+
+public static class WeatherForecastEndpoints
+{
+    private static Func<int, WeatherService, Microsoft.AspNetCore.Http.IResult> GetById = 
+        (int id, WeatherService weatherService) =>
+        weatherService.GetById(id)
+        .ToMinimalApiResult();
+
+    public static WebApplication MapWeatherForecastEndpoints(this WebApplication app)
+    {
+        //var group = app.MapGroup("forecasts");
+
+        app.MapGet("/forecasts", (WeatherService weatherService) => weatherService.List().ToMinimalApiResult())
+            .WithTags("WeatherForecasts");
+
+        app.MapGet("/forecasts/{id}", (int id, WeatherService weatherService) =>
+            WeatherForecastEndpoints.GetById(id, weatherService))
+            .WithTags("WeatherForecasts");
+
+        app.MapPost("/forecasts", (WeatherForecastDTO request, WeatherService weatherService) =>
+            weatherService.Create(request.Date, request.TemperatureC, request.Summary)
+            .ToMinimalApiResult())
+            .WithTags("WeatherForecasts");
+
+        return app;
+    }
+}
+
+```
+
 ## References
 
 https://github.com/DamianEdwards/MinimalApiPlayground/
