@@ -61,3 +61,33 @@ public class World
     public string? Name { get; init; }
 }
 ```
+
+## Talk outline 
+
+### Getting Started 
+
+- Show basic endpoints and layout of program.cs
+- Add packages and enable swagger
+
+### Ardalis.Result Mapping to Microsoft.AspNetCore.Http.Result
+
+- Review Result Pattern and problem it solves
+- Add Ardalis.Result package
+- Show switch mapping to Microsoft.AspNetCore.Http.Result
+- Demo two endpoints, very simple extensions, duplicate swagger attributes
+- Add getById endpoint, show static delegate (method group), show variable local function
+
+### Experiments with grouping, extensions, html, and other fun
+
+- Show extension for registering endpoints, grouping
+- What really is going on? string and delegate is all that is needed
+- Producing other content types
+- Bootstrap example
+
+### Takeaways 
+
+- How might we use this in our projects?
+- What are the downsides?
+- Still feels like new terrain to explore, similar patterns but different structure
+- What are the implications for testing?
+- Any questions?
