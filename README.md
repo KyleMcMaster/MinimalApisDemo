@@ -201,9 +201,10 @@ Review service and rendering html
 
 #### Complex
 
-
+- show bootstrap with hacky rendering of html
 
 ## References
 
 https://github.com/DamianEdwards/MinimalApiPlayground/
 https://learn.microsoft.com/en-us/aspnet/core/tutorials/min-web-api?view=aspnetcore-7.0&tabs=visual-studio-code
+https://getbootstrap.com/docs/4.0/getting-started/introduction/
