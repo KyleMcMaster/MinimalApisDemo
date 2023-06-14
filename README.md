@@ -133,13 +133,6 @@ public class WeatherService
 app.MapGet("/forecasts/{id}", (int id, WeatherService weatherService) =>
     WeatherForecastEndpoints.GetById(id, weatherService))
     .WithTags("WeatherForecasts");
-    
-public static class WeatherForecastEndpoints
-{
-    public static Func<WeatherService, int, Microsoft.AspNetCore.Http.IResult> GetWeatherForecastById = (weatherService, id) =>
-        weatherService.GetById(id)
-        .ToMinimalApiResult();
-}
 
 public Result<WeatherForecast> GetById(int id)
 {
@@ -151,6 +144,13 @@ public Result<WeatherForecast> GetById(int id)
     }
 
     return forecast;
+}
+
+public static class WeatherForecastEndpoints
+{
+    public static Func<WeatherService, int, Microsoft.AspNetCore.Http.IResult> GetWeatherForecastById = (weatherService, id) =>
+        weatherService.GetById(id)
+        .ToMinimalApiResult();
 }
 ```
 
