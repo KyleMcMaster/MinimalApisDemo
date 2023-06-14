@@ -21,10 +21,6 @@ app.MapGet("/", (HttpResponse httpResponse) => httpResponse.Redirect("/swagger")
 app.MapGet("/forecasts", (WeatherService weatherService) => weatherService.List().ToMinimalApiResult())
     .WithTags("WeatherForecasts");
 
-app.MapGet("/forecasts/{id}", (int id, WeatherService weatherService) =>
-    WeatherForecastEndpoints.GetById(id, weatherService))
-    .WithTags("WeatherForecasts");
-
 app.MapPost("/forecasts", (WeatherForecastDTO request, WeatherService weatherService) =>
     weatherService.Create(request.Date, request.TemperatureC, request.Summary)
     .ToMinimalApiResult())
@@ -95,26 +91,4 @@ public class WeatherService
     {
         return _forecasts; // Always Successful
     }
-
-
-    public Result<WeatherForecast> GetById(int id)
-    {
-        var forecast = _forecasts.SingleOrDefault(f => f.Id == id);
-
-        if (forecast is null)
-        {
-            return Result.NotFound();
-        }
-
-        return forecast;
-    }
-}
-
-
-public static class WeatherForecastEndpoints
-{
-    public static Func<int, WeatherService, Microsoft.AspNetCore.Http.IResult> GetById = 
-        (int id, WeatherService weatherService) =>
-        weatherService.GetById(id)
-        .ToMinimalApiResult();
 }
