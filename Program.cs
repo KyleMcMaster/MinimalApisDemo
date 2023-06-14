@@ -130,17 +130,14 @@ public static class WeatherForecastViews
     public static Func<WeatherService, Microsoft.AspNetCore.Http.IResult> Index = (WeatherService weatherService) =>
     {
         var forecast = weatherService.List().Value.First();
-        return Results.Extensions.Html(
-            $"""
-                <!doctype html>
-                <html>
-                <head><title>{forecast.Date.ToShortDateString()}'s Forecast</title></head>
-                <body>
-                    <h1>Today is going to be {forecast.Summary}</h1>
-                    <p>The temperature Celsius is {forecast.TemperatureC}</p>
-                    <p>The temperature Fahrenheit is {forecast.TemperatureF}</p>
-                </body>
-                </html>
-            """);
+        string rawHtml = File.ReadAllText("index.html");
+        string today = forecast.Date.ToShortDateString();
+        string celsius = forecast.TemperatureC.ToString();
+        string fahrenheit = forecast.TemperatureF.ToString();
+        string rendered = rawHtml.Replace("{today}", today)
+            .Replace("{celsius}", celsius)
+            .Replace("{fahrenheit}", fahrenheit)
+            .Replace("{summary}", forecast.Summary);
+        return Results.Extensions.Html(rendered);
     };
 }

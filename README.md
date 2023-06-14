@@ -191,13 +191,17 @@ public static class WeatherForecastEndpoints
 
 ### Other content types
 
+#### Basic
+
 ```powershell
 dotnet add package MinimalApis.Extensions
 ```
 
-```csharp
+Review service and rendering html
 
-```
+#### Complex
+
+
 
 ## References
 
